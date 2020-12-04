@@ -35,15 +35,15 @@ class Thing():
        self.y = y
 
 class Layer():
-    def __init__(self, width, height,name):
+    def __init__(self, id, width, height,name):
         self.data = [0] * (width * height)
-        self.height = 4
-        self.id = 2
+        self.height = height 
+        self.id = id
         self.name = name
         self.opacity = 1
         self.type = "tilelayer"
         self.visible = True
-        self.width  = 4
+        self.width  = width
         self.x = 0
         self.y = 0
 
@@ -71,15 +71,32 @@ class RoomLayers(IntEnum):
 class Room():
     def __init__(self,height, width):
         self.content=RoomData(height,width)
-        self.content.layers.append(Layer(self.content.width,self.content.height, "backgroundlayer")) # append layer for background
-        self.content.layers.append(Layer(self.content.width,self.content.height, "thingslayer")) # append layer for things
+        self.content.layers.append(Layer(RoomLayers.BACKGROUND, self.content.width,self.content.height, "backgroundlayer")) # append layer for background
+        self.content.layers.append(Layer(RoomLayers.THINGS, self.content.width,self.content.height, "thingslayer")) # append layer for things
 
+    def _addTileset(self, tileset: Tileset):
+         #check if the used tileset is allready added
+        tilesetIsPresent = False
+        for presentTileset in self.content.tilesets:
+            if presentTileset["name"] == tileset.content["name"]:
+                tilesetIsPresent = True
+        if not tilesetIsPresent:
+            self.content.tilesets.append(tileset.getTileset(1))
 
-    def setBackground(self,intvalue):
+    def _addTileToLayer(self, layer, tileid,pos):
+            self.content.layers[layer].data[pos] = tileid+1 #seems like tiled is using 0 based indexing but showing 1 based indexing in gui
+
+    def setBackgroundColor(self,intvalue):
         self.content.backgroundcolor = "#%x" % intvalue 
 
-       
+    def setBackgroundTile(self, tileset: Tileset, tileid):
+        self._addTileset(tileset) #maybe the tileset used for background is not present in room? Better try to add it 
+        for pos in range(self.content.layers[RoomLayers.BACKGROUND].width * self.content.layers[RoomLayers.BACKGROUND].height):
+            self._addTileToLayer(RoomLayers.BACKGROUND,tileid,pos) 
+        
+               
     def toJSON(self):
+        #todo: remove empty layers (all data elements 0), otherweise tiled will not load the file (background may not be set)
         return json.dumps(self.content, default=lambda o: o.__dict__, 
             sort_keys=True, indent=4)
 
@@ -88,17 +105,10 @@ class Room():
             roomjsonfile.write(self.toJSON())
 
     def add(self, thingToAdd: Thing):
-        #check if the used tileset is allready added
-        tilesetIsPresent = False
-        for presentTileset in self.content.tilesets:
-            if presentTileset["name"] == thingToAdd.tileset.content["name"]:
-                tilesetIsPresent = True
-                print("tileset is allready present")
-        if not tilesetIsPresent:
-            self.content.tilesets.append(thingToAdd.tileset.getTileset(1))
+        self._addTileset(thingToAdd.tileset)
         # now add the tile to the layer
         posInData = (thingToAdd.y*self.content.width)+thingToAdd.x
-        self.content.layers[RoomLayers.THINGS].data[posInData]=thingToAdd.tileID
+        self._addTileToLayer(RoomLayers.THINGS,thingToAdd.tileID,posInData)
 
 
 
@@ -113,7 +123,8 @@ def main():
     
     # create room
     myroom = Room(5,5)
-    myroom.setBackground(0x55aa55aa) #example how to change room background color
+    myroom.setBackgroundColor(0x55aa55aa) #example how to change room background color
+    myroom.setBackgroundTile(mytileset,660) #example how to add a tile as background layer filled with that tile
 
     # create a thing, here a castle :-) and add it to the room 
     castle = Thing(mytileset,586,0,0)
