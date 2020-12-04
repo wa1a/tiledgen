@@ -1,5 +1,6 @@
-import json
-from json import JSONEncoder
+import json 
+from enum import IntEnum
+
 
 # right now one tileset is describet in a json file, 
 # maybe we can describe ALL available tilesets in the same file?
@@ -34,11 +35,11 @@ class Thing():
        self.y = y
 
 class Layer():
-    def __init__(self, width, height):
+    def __init__(self, width, height,name):
         self.data = [0] * (width * height)
         self.height = 4
         self.id = 2
-        self.name ="Tile Layer 1"
+        self.name = name
         self.opacity = 1
         self.type = "tilelayer"
         self.visible = True
@@ -63,12 +64,15 @@ class RoomData():
         self.tiledversion="1.0.3"
         self.width=height
 
-
+class RoomLayers(IntEnum):
+    BACKGROUND = 0
+    THINGS = 1
 
 class Room():
     def __init__(self,height, width):
         self.content=RoomData(height,width)
-        self.content.layers.append(Layer(self.content.width,self.content.height))
+        self.content.layers.append(Layer(self.content.width,self.content.height, "backgroundlayer")) # append layer for background
+        self.content.layers.append(Layer(self.content.width,self.content.height, "thingslayer")) # append layer for things
 
 
     def setBackground(self,intvalue):
@@ -94,7 +98,7 @@ class Room():
             self.content.tilesets.append(thingToAdd.tileset.getTileset(1))
         # now add the tile to the layer
         posInData = (thingToAdd.y*self.content.width)+thingToAdd.x
-        self.content.layers[0].data[posInData]=thingToAdd.tileID
+        self.content.layers[RoomLayers.THINGS].data[posInData]=thingToAdd.tileID
 
 
 
