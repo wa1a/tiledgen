@@ -48,9 +48,9 @@ class Layer():
 
 class RoomData():
     
-    def __init__(self):
+    def __init__(self, height, width):
         self.backgroundcolor = "#ffffffff"
-        self.height=4 
+        self.height=height 
         self.layers = []
         self.nextobjectid= 1
         self.orientation="orthogonal"
@@ -61,13 +61,13 @@ class RoomData():
         self.tilewidth=32
         self.version = 1
         self.tiledversion="1.0.3"
-        self.width=4
+        self.width=height
 
 
 
 class Room():
-    def __init__(self):
-        self.content=RoomData()
+    def __init__(self,height, width):
+        self.content=RoomData(height,width)
         self.content.layers.append(Layer(self.content.width,self.content.height))
 
 
@@ -108,7 +108,7 @@ def main():
     mytileset = Tileset("testtileset.json") # load the tileset from description file
     
     # create room
-    myroom = Room()
+    myroom = Room(5,5)
     myroom.setBackground(0x55aa55aa) #example how to change room background color
 
     # create a thing, here a castle :-) and add it to the room 
