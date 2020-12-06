@@ -32,7 +32,7 @@
             ],
             "height": 5,
             "id": 0,
-            "name": "backgroundlayer",
+            "name": "start",
             "opacity": 1,
             "type": "tilelayer",
             "visible": true,
