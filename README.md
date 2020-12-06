@@ -1,3 +1,4 @@
 # tiledgen
 
-Test here : [https://wa1a.github.io/tiledgen/index.html]
+Test here : 
+https://play.workadventu.re/_/global/wa1a.github.io/tiledgen/map.json
