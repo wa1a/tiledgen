@@ -35,7 +35,7 @@ class Thing():
        self.y = y
 
 class Layer():
-    def __init__(self, id, width, height,name):
+    def __init__(self, id,x,y, width, height,name):
         self.data = [0] * (width * height)
         self.height = height 
         self.id = id
@@ -44,8 +44,8 @@ class Layer():
         self.type = "tilelayer"
         self.visible = True
         self.width  = width
-        self.x = 0
-        self.y = 0
+        self.x = x
+        self.y = y
 
 class RoomData():
     
@@ -71,8 +71,8 @@ class RoomLayers(IntEnum):
 class Room():
     def __init__(self,height, width):
         self.content=RoomData(height,width)
-        self.content.layers.append(Layer(RoomLayers.BACKGROUND, self.content.width,self.content.height, "backgroundlayer")) # append layer for background
-        self.content.layers.append(Layer(RoomLayers.THINGS, self.content.width,self.content.height, "thingslayer")) # append layer for things
+        self.content.layers.append(Layer(RoomLayers.BACKGROUND,0,0, self.content.width,self.content.height, "backgroundlayer")) # append layer for background
+        self.content.layers.append(Layer(RoomLayers.THINGS, 0,0,self.content.width,self.content.height, "thingslayer")) # append layer for things
 
     def _addTileset(self, tileset: Tileset):
          #check if the used tileset is allready added
