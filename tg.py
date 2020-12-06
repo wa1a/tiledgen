@@ -1,5 +1,6 @@
 import json 
 from enum import IntEnum
+from enum import Enum
 
 
 # right now one tileset is describet in a json file, 
@@ -34,14 +35,22 @@ class Thing():
        self.x = x
        self.y = y
 
+class LayerTypes(Enum):
+    TILELAYER=0
+    OBJECTGROUP=1
+
 class Layer():
-    def __init__(self, id,x,y, width, height,name):
-        self.data = [0] * (width * height)
+    def __init__(self,type: LayerTypes, id,x,y, width, height,name):
+        if type == LayerTypes.TILELAYER:
+            self.data = [0] * (width * height)
+            self.type = "tilelayer"
+        if type == LayerTypes.OBJECTGROUP:
+            self.objects = []
+            self.type = "objectgroup"
         self.height = height 
         self.id = id
         self.name = name
         self.opacity = 1
-        self.type = "tilelayer"
         self.visible = True
         self.width  = width
         self.x = x
@@ -67,12 +76,14 @@ class RoomData():
 class RoomLayers(IntEnum):
     BACKGROUND = 0
     THINGS = 1
+    OBJECTS = 2
 
 class Room():
     def __init__(self,height, width):
         self.content=RoomData(height,width)
-        self.content.layers.append(Layer(RoomLayers.BACKGROUND,0,0, self.content.width,self.content.height, "backgroundlayer")) # append layer for background
-        self.content.layers.append(Layer(RoomLayers.THINGS, 0,0,self.content.width,self.content.height, "thingslayer")) # append layer for things
+        self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.BACKGROUND,0,0, self.content.width,self.content.height, "backgroundlayer")) # append layer for background
+        self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.THINGS, 0,0,self.content.width,self.content.height, "thingslayer")) # append layer for things
+        self.content.layers.append(Layer(LayerTypes.OBJECTGROUP,RoomLayers.OBJECTS, 0,0,self.content.width,self.content.height, "objectlayer")) # append layer for objects
 
     def _addTileset(self, tileset: Tileset):
          #check if the used tileset is allready added

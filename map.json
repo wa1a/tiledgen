@@ -77,6 +77,18 @@
             "width": 5,
             "x": 0,
             "y": 0
+        },
+        {
+            "height": 5,
+            "id": 2,
+            "name": "objectlayer",
+            "objects": [],
+            "opacity": 1,
+            "type": "objectgroup",
+            "visible": true,
+            "width": 5,
+            "x": 0,
+            "y": 0
         }
     ],
     "nextobjectid": 1,
