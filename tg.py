@@ -81,7 +81,7 @@ class RoomLayers(IntEnum):
 class Room():
     def __init__(self,height, width):
         self.content=RoomData(height,width)
-        self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.BACKGROUND,0,0, self.content.width,self.content.height, "backgroundlayer")) # append layer for background
+        self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.BACKGROUND,0,0, self.content.width,self.content.height, "start")) # makes the entry to tha map random. See https://workadventu.re/create-map.html TODO provide an explicit start point
         self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.THINGS, 0,0,self.content.width,self.content.height, "thingslayer")) # append layer for things
         self.content.layers.append(Layer(LayerTypes.OBJECTGROUP,RoomLayers.OBJECTS, 0,0,self.content.width,self.content.height, "objectlayer")) # append layer for objects
 
