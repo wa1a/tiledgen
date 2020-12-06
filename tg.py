@@ -83,7 +83,7 @@ class Room():
         self.content=RoomData(height,width)
         self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.BACKGROUND,0,0, self.content.width,self.content.height, "start")) # makes the entry to tha map random. See https://workadventu.re/create-map.html TODO provide an explicit start point
         self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.THINGS, 0,0,self.content.width,self.content.height, "thingslayer")) # append layer for things
-        self.content.layers.append(Layer(LayerTypes.OBJECTGROUP,RoomLayers.OBJECTS, 0,0,self.content.width,self.content.height, "objectlayer")) # append layer for objects
+        self.content.layers.append(Layer(LayerTypes.OBJECTGROUP,RoomLayers.OBJECTS, 0,0,self.content.width,self.content.height, "floorLayer")) # append layer for drawing the players
 
     def _addTileset(self, tileset: Tileset):
          #check if the used tileset is allready added
