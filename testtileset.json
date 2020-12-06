@@ -7,7 +7,7 @@
          "target":"testtileset"
         }
     },
- "image":"..\/kidspace-wa\/tiles\/pokemon1.png",
+ "image":"pokemon1.png",
  "imageheight":6432,
  "imagewidth":256,
  "margin":0,

@@ -90,6 +90,7 @@ class Room():
         self.content.backgroundcolor = "#%x" % intvalue 
 
     def setBackgroundTile(self, tileset: Tileset, tileid):
+
         self._addTileset(tileset) #maybe the tileset used for background is not present in room? Better try to add it 
         for pos in range(self.content.layers[RoomLayers.BACKGROUND].width * self.content.layers[RoomLayers.BACKGROUND].height):
             self._addTileToLayer(RoomLayers.BACKGROUND,tileid,pos) 
@@ -138,7 +139,7 @@ def main():
     # print and export the created room
     myroomjson = myroom.toJSON()
     print(myroomjson)
-    myroom.toFile('room.json')
+    myroom.toFile('map.json')
 
 if __name__ == "__main__":
     main()
