@@ -135,12 +135,16 @@ class Thing():
        #assuming we have a thing that holds only one tile, so width and height = 1
        self.width = 1
        self.height = 1
+
+    def _addToLayer(self, layerid,room: Room,x,y):
+        posInData = (y*room.content.width)+x
+        room._addTileToLayer(layerid,self.tileID,posInData)
+
     def addToRoom(self, room: Room,x,y):
         room._addTileset(self.tileset)
         # now add the tile to the layer
-        posInData = (y*room.content.width)+x
-        room._addTileToLayer(RoomLayers.THINGS,self.tileID,posInData)
-
+        self._addToLayer(RoomLayers.THINGS,room,x,y)
+       
 class ThingWithLink(Thing):
 
     def __init__(self, tileset_to_use: Tileset, tileID, link: str ):
@@ -150,11 +154,11 @@ class ThingWithLink(Thing):
     def addToRoom(self,room: Room,x,y):
         room._addTileset(self.tileset)
         # we need to create a layer that fits for our thing
-        newLayer = Layer(LayerTypes.TILELAYER,room.getNextLayerId(),x,y,self.width,self.height,"linkedLayer")
+        newLayer = Layer(LayerTypes.TILELAYER,room.getNextLayerId(),0,0,room.content.width,room.content.height,"linkedLayer")
         newLayerProperty = LayerProperty("openWebsite", "string", self.link)
         newLayer.properties.append(newLayerProperty)
-        newLayer.data[0]= self.tileID
         room.content.layers.append(newLayer)
+        self._addToLayer(newLayer.id,room,x,y)
 
 
         
@@ -177,7 +181,7 @@ def main():
     castle.addToRoom(myroom,3,2)
 
     #castle with a link
-    castleWithLink = ThingWithLink(mytileset,586,"https://cccs.de")
+    castleWithLink = ThingWithLink(mytileset,585,"https://cccs.de")
     castleWithLink.addToRoom(myroom,5,5)
 
     # print and export the created room
