@@ -37,6 +37,7 @@ class Layer():
         if type == LayerTypes.TILELAYER:
             self.data = [0] * (width * height)
             self.type = "tilelayer"
+            self.properties =  []
         if type == LayerTypes.OBJECTGROUP:
             self.objects = []
             self.type = "objectgroup"
@@ -48,6 +49,14 @@ class Layer():
         self.width  = width
         self.x = x
         self.y = y
+
+class LayerProperty():
+    
+    def __init__(self,name,ptype,value):
+        self.name = name
+        self.type = ptype
+        self.value = value
+
 
 class RoomData():
     
@@ -98,7 +107,12 @@ class Room():
         self._addTileset(tileset) #maybe the tileset used for background is not present in room? Better try to add it 
         for pos in range(self.content.layers[RoomLayers.BACKGROUND].width * self.content.layers[RoomLayers.BACKGROUND].height):
             self._addTileToLayer(RoomLayers.BACKGROUND,tileid,pos) 
-        
+    def getNextLayerId(self):
+        nextId = 0
+        for layer in self.content.layers:
+            if layer.id > nextId:
+                nextId = layer.id
+        return nextId+1
                
     def __str__(self):
         #todo: remove empty layers (all data elements 0), otherweise tiled will not load the file (background may not be set)
@@ -116,6 +130,9 @@ class Thing():
     def __init__(self, tileset_to_use: Tileset, tileID):
        self.tileset = tileset_to_use
        self.tileID = tileID
+       #assuming we have a thing that holds only one tile, so width and height = 1
+       self.width = 1
+       self.height = 1
     def addToRoom(self, room: Room,x,y):
         room._addTileset(self.tileset)
         # now add the tile to the layer
@@ -130,7 +147,15 @@ class ThingWithLink(Thing):
 
     def addToRoom(self,room: Room,x,y):
         room._addTileset(self.tileset)
+        # we need to create a layer that fits for our thing
+        newLayer = Layer(LayerTypes.TILELAYER,room.getNextLayerId(),x,y,self.width,self.height,"linkedLayer")
+        newLayerProperty = LayerProperty("openWebsite", "string", self.link)
+        newLayer.properties.append(newLayerProperty)
+        newLayer.data[0]= self.tileID
+        room.content.layers.append(newLayer)
 
+
+        
 
 def main():
     print("tiled generator")
@@ -138,7 +163,7 @@ def main():
     mytileset = Tileset("testtileset.json") # load the tileset from description file
     
     # create room
-    myroom = Room(5,5)
+    myroom = Room(10,10)
     myroom.setBackgroundColor(0x55aa55aa) #example how to change room background color
     myroom.setBackgroundTile(mytileset,660) #example how to add a tile as background layer filled with that tile
 
@@ -149,6 +174,9 @@ def main():
     # second castle 
     castle.addToRoom(myroom,3,2)
 
+    #castle with a link
+    castleWithLink = ThingWithLink(mytileset,586,"https://cccs.de")
+    castleWithLink.addToRoom(myroom,5,5)
 
     # print and export the created room
     print(myroom)
