@@ -27,13 +27,6 @@ class Tileset():
 
 
 
-# a thing is something we can add to a room on a position
-class Thing():
-    def __init__(self, tileset_to_use: Tileset, tileID, x,y):
-       self.tileset = tileset_to_use
-       self.tileID = tileID
-       self.x = x
-       self.y = y
 
 class LayerTypes(Enum):
     TILELAYER=0
@@ -107,22 +100,29 @@ class Room():
             self._addTileToLayer(RoomLayers.BACKGROUND,tileid,pos) 
         
                
-    def toJSON(self):
+    def __str__(self):
         #todo: remove empty layers (all data elements 0), otherweise tiled will not load the file (background may not be set)
         return json.dumps(self.content, default=lambda o: o.__dict__, 
             sort_keys=True, indent=4)
 
     def toFile(self, file):
         with open(file,'w') as roomjsonfile:
-            roomjsonfile.write(self.toJSON())
+            roomjsonfile.write(self.__str__())
 
-    def add(self, thingToAdd: Thing):
-        self._addTileset(thingToAdd.tileset)
+
+
+# a thing is something we can add to a room on a position
+class Thing():
+    def __init__(self, tileset_to_use: Tileset, tileID, x,y):
+       self.tileset = tileset_to_use
+       self.tileID = tileID
+       self.x = x
+       self.y = y
+    def addToRoom(self, room: Room):
+        room._addTileset(self.tileset)
         # now add the tile to the layer
-        posInData = (thingToAdd.y*self.content.width)+thingToAdd.x
-        self._addTileToLayer(RoomLayers.THINGS,thingToAdd.tileID,posInData)
-
-
+        posInData = (self.y*room.content.width)+self.x
+        room._addTileToLayer(RoomLayers.THINGS,self.tileID,posInData)
 
 
 
@@ -140,16 +140,15 @@ def main():
 
     # create a thing, here a castle :-) and add it to the room 
     castle = Thing(mytileset,586,0,0)
-    myroom.add(castle)
+    castle.addToRoom(myroom)
 
     # second castle 
     castle2 = Thing(mytileset,586,3,2)
-    myroom.add(castle2)
+    castle2.addToRoom(myroom)
 
 
     # print and export the created room
-    myroomjson = myroom.toJSON()
-    print(myroomjson)
+    print(myroom)
     myroom.toFile('map.json')
 
 if __name__ == "__main__":
