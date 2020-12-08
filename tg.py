@@ -47,8 +47,10 @@ class Layer():
         self.opacity = 1
         self.visible = True
         self.width  = width
-        self.x = x
-        self.y = y
+        self.startx = x
+        self.starty = y
+        self.x = 0 # tiled doku says this is always zero
+        self.y = 0 # tiled doku says this is always zero
 
 class LayerProperty():
     
