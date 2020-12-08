@@ -113,19 +113,23 @@ class Room():
 
 # a thing is something we can add to a room on a position
 class Thing():
-    def __init__(self, tileset_to_use: Tileset, tileID, x,y):
+    def __init__(self, tileset_to_use: Tileset, tileID):
        self.tileset = tileset_to_use
        self.tileID = tileID
-       self.x = x
-       self.y = y
-    def addToRoom(self, room: Room):
+    def addToRoom(self, room: Room,x,y):
         room._addTileset(self.tileset)
         # now add the tile to the layer
-        posInData = (self.y*room.content.width)+self.x
+        posInData = (y*room.content.width)+x
         room._addTileToLayer(RoomLayers.THINGS,self.tileID,posInData)
 
+class ThingWithLink(Thing):
 
+    def __init__(self, tileset_to_use: Tileset, tileID, link: str ):
+        super().__init__(tileset_to_use, tileID )
+        self.link = link
 
+    def addToRoom(self,room: Room,x,y):
+        room._addTileset(self.tileset)
 
 
 def main():
@@ -139,12 +143,11 @@ def main():
     myroom.setBackgroundTile(mytileset,660) #example how to add a tile as background layer filled with that tile
 
     # create a thing, here a castle :-) and add it to the room 
-    castle = Thing(mytileset,586,0,0)
-    castle.addToRoom(myroom)
+    castle = Thing(mytileset,586)
+    castle.addToRoom(myroom,1,1)
 
     # second castle 
-    castle2 = Thing(mytileset,586,3,2)
-    castle2.addToRoom(myroom)
+    castle.addToRoom(myroom,3,2)
 
 
     # print and export the created room
