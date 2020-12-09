@@ -176,7 +176,7 @@ class ThingWithLink(Thing):
         # we need to create a layer that fits for our thing
         layerid = room.getNextLayerId()
         layerid = room.keepFloorLayerOnTop(layerid)
-        newLayer = Layer(LayerTypes.TILELAYER,layerid,0,0,room.content.width,room.content.height,"linkedLayer")
+        newLayer = Layer(LayerTypes.TILELAYER,layerid,0,0,room.content.width,room.content.height,"linkedLayer"+str(layerid))
         newLayerProperty = LayerProperty("openWebsite", "string", self.link)
         newLayer.properties.append(newLayerProperty)
         room.content.layers.append(newLayer)
@@ -203,9 +203,12 @@ def main():
     # second thing 
     door.addToRoom(myroom,3,2)
 
-    #castle with a link
+    #with a link
     windowWithLink = ThingWithLink(bibTileset,12,"https://cccs.de")
     windowWithLink.addToRoom(myroom,5,5)
+    windowWithLink2 = ThingWithLink(bibTileset,13,"docs\/RC3StyleGuideEssentials.pdf")
+    windowWithLink2.addToRoom(myroom,8,8)
+ 
 
     # print and export the created room
     print(myroom)
