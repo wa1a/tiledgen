@@ -92,17 +92,28 @@ class Room():
 
     def _addTileset(self, tileset: Tileset):
          #check if the used tileset is allready added
+        firstgid = 1
         tilesetIsPresent = False
         for presentTileset in self.content.tilesets:
+            if presentTileset["firstgid"] == firstgid:
+                firstgid = firstgid + presentTileset["tilecount"]
             if presentTileset["name"] == tileset.content["name"]:
                 tilesetIsPresent = True
         if not tilesetIsPresent:
+            tileset.content["firstgid"]= firstgid
             self.content.tilesets.append(tileset.content)
 
-    def _addTileToLayer(self, layer, tileid,pos):
-            self.content.layers[layer].data[pos] = tileid+1 #seems like tiled is using 0 based indexing but showing 1 based indexing in gui
+    def _getFirstGidOfTileset(self, tileset: Tileset):
+        for aktTileset in self.content.tilesets:
+            if aktTileset["name"] == tileset.content["name"]:
+                return aktTileset["firstgid"]
+        return 0
 
+    def _addTileToLayer(self, layer, tileset: Tileset, tileid,pos):
+            firstGid = self._getFirstGidOfTileset(tileset)
+            self.content.layers[layer].data[pos] = tileid + firstGid -1 
 
+   
     def setBackgroundColor(self,intvalue):
         self.content.backgroundcolor = "#%x" % intvalue 
 
@@ -110,7 +121,7 @@ class Room():
 
         self._addTileset(tileset) #maybe the tileset used for background is not present in room? Better try to add it 
         for pos in range(self.content.layers[RoomLayers.BACKGROUND].width * self.content.layers[RoomLayers.BACKGROUND].height):
-            self._addTileToLayer(RoomLayers.BACKGROUND,tileid,pos) 
+            self._addTileToLayer(RoomLayers.BACKGROUND,tileset, tileid,pos) 
     def getNextLayerId(self):
         nextId = 0
         for layer in self.content.layers:
@@ -140,7 +151,7 @@ class Thing():
     
     def _addToLayer(self, layerid,room: Room,x,y):
         posInData = (y*room.content.width)+x
-        room._addTileToLayer(layerid,self.tileID,posInData)
+        room._addTileToLayer(layerid,self.tileset,self.tileID,posInData)
 
     def addToRoom(self, room: Room,x,y):
         room._addTileset(self.tileset)
