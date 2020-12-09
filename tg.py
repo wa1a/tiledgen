@@ -79,9 +79,9 @@ class RoomData():
         self.width=height
 
 class RoomLayers(IntEnum):
-    BACKGROUND = 0
-    THINGS = 1
-    OBJECTS = 2
+    BACKGROUND = 1
+    THINGS = 2
+    OBJECTS = 3
 
 class Room():
     def __init__(self,height, width):
@@ -89,7 +89,6 @@ class Room():
         self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.BACKGROUND,0,0, self.content.width,self.content.height, "start")) # makes the entry to tha map random. See https://workadventu.re/create-map.html TODO provide an explicit start point
         self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.THINGS, 0,0,self.content.width,self.content.height, "thingslayer")) # append layer for things
         self.content.layers.append(Layer(LayerTypes.OBJECTGROUP,RoomLayers.OBJECTS, 0,0,self.content.width,self.content.height, "floorLayer")) # append layer for drawing the players
-
     def _addTileset(self, tileset: Tileset):
          #check if the used tileset is allready added
         firstgid = 1
@@ -109,9 +108,11 @@ class Room():
                 return aktTileset["firstgid"]
         return 0
 
-    def _addTileToLayer(self, layer, tileset: Tileset, tileid,pos):
+    def _addTileToLayer(self, layer_id, tileset: Tileset, tileid,pos):
             firstGid = self._getFirstGidOfTileset(tileset)
-            self.content.layers[layer].data[pos] = tileid + firstGid -1 
+            for layer in self.content.layers:
+                if layer.id == layer_id:
+                    layer.data[pos] = tileid + firstGid
 
    
     def setBackgroundColor(self,intvalue):
@@ -128,7 +129,13 @@ class Room():
             if layer.id > nextId:
                 nextId = layer.id
         return nextId+1
-               
+    def keepFloorLayerOnTop(self, highestLayerId):
+        for layer in self.content.layers:
+            if layer.name == "floorLayer":
+                oldLayerid = layer.id
+                layer.id = highestLayerId
+                return oldLayerid
+
     def __str__(self):
         #todo: remove empty layers (all data elements 0), otherweise tiled will not load the file (background may not be set)
         return json.dumps(self.content, default=lambda o: o.__dict__, 
@@ -167,7 +174,9 @@ class ThingWithLink(Thing):
     def addToRoom(self,room: Room,x,y):
         room._addTileset(self.tileset)
         # we need to create a layer that fits for our thing
-        newLayer = Layer(LayerTypes.TILELAYER,room.getNextLayerId(),0,0,room.content.width,room.content.height,"linkedLayer")
+        layerid = room.getNextLayerId()
+        layerid = room.keepFloorLayerOnTop(layerid)
+        newLayer = Layer(LayerTypes.TILELAYER,layerid,0,0,room.content.width,room.content.height,"linkedLayer")
         newLayerProperty = LayerProperty("openWebsite", "string", self.link)
         newLayer.properties.append(newLayerProperty)
         room.content.layers.append(newLayer)
@@ -187,11 +196,11 @@ def main():
     myroom.setBackgroundColor(0x55aa55aa) #example how to change room background color
     myroom.setBackgroundTile(floorTileset,23) #example how to add a tile as background layer filled with that tile
 
-    # create a thing, here a castle :-) and add it to the room 
+    # create a thing and add it to the room 
     door = Thing(bibTileset,11)
     door.addToRoom(myroom,1,1)
 
-    # second castle 
+    # second thing 
     door.addToRoom(myroom,3,2)
 
     #castle with a link
