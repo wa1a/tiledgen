@@ -1,7 +1,7 @@
 # tiledgen
 
 Test here : 
-https://play.workadventu.re/_/global/wa1a.github.io/tiledgen/map.json
+https://play.wa-test.rc3.cccv.de/_/global/wa1a.github.io/tiledgen/map.json
 
 Direct link to map.json:
 https://wa1a.github.io/tiledgen/map.json
