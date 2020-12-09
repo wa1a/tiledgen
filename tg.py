@@ -83,10 +83,6 @@ class RoomLayers(IntEnum):
     THINGS = 1
     OBJECTS = 2
 
-class Density(Enum):
-    notSolid=0
-    solid=1
-
 class Room():
     def __init__(self,height, width):
         self.content=RoomData(height,width)
@@ -101,27 +97,10 @@ class Room():
             if presentTileset["name"] == tileset.content["name"]:
                 tilesetIsPresent = True
         if not tilesetIsPresent:
-            self.content.tilesets.append(tileset.getTileset(1))
+            self.content.tilesets.append(tileset.content)
 
     def _addTileToLayer(self, layer, tileid,pos):
             self.content.layers[layer].data[pos] = tileid+1 #seems like tiled is using 0 based indexing but showing 1 based indexing in gui
-
-    #sets the density of a allready added tile
-    def _setTileDensity(self,tileset: Tileset,tileID, density: Density):
-        #find tileset in content
-        for presentTileset in self.content.tilesets:
-            if presentTileset["name"] == tileset.content["name"]:
-                for tile in presentTileset["tiles"]:
-                    if tile["id"] == tileID:
-                       return #property allready set, do nothing
-                presentTileset["tiles"].append({"id": tileID,
-                                                "properties": [{
-                                                    "name": "collides",
-                                                    "type":"bool",
-                                                    "value":(density == Density.solid)                                                
-                }]})
-
-
 
 
     def setBackgroundColor(self,intvalue):
@@ -152,13 +131,12 @@ class Room():
 
 # a thing is something we can add to a room on a position
 class Thing():
-    def __init__(self, tileset_to_use: Tileset, tileID,density: Density):
+    def __init__(self, tileset_to_use: Tileset, tileID):
        self.tileset = tileset_to_use
        self.tileID = tileID
        #assuming we have a thing that holds only one tile, so width and height = 1
        self.width = 1
        self.height = 1
-       self.density = density
     
     def _addToLayer(self, layerid,room: Room,x,y):
         posInData = (y*room.content.width)+x
@@ -166,19 +144,17 @@ class Thing():
 
     def addToRoom(self, room: Room,x,y):
         room._addTileset(self.tileset)
-        room._setTileDensity(self.tileset,self.tileID,self.density)
         # now add the tile to the layer
         self._addToLayer(RoomLayers.THINGS,room,x,y)
        
 class ThingWithLink(Thing):
 
-    def __init__(self, tileset_to_use: Tileset, tileID,density: Density, link: str ):
-        super().__init__(tileset_to_use, tileID,density )
+    def __init__(self, tileset_to_use: Tileset, tileID, link: str ):
+        super().__init__(tileset_to_use, tileID )
         self.link = link
 
     def addToRoom(self,room: Room,x,y):
         room._addTileset(self.tileset)
-        room._setTileDensity(self.tileset,self.tileID,self.density)
         # we need to create a layer that fits for our thing
         newLayer = Layer(LayerTypes.TILELAYER,room.getNextLayerId(),0,0,room.content.width,room.content.height,"linkedLayer")
         newLayerProperty = LayerProperty("openWebsite", "string", self.link)
@@ -192,23 +168,24 @@ class ThingWithLink(Thing):
 def main():
     print("tiled generator")
 
-    mytileset = Tileset("testtileset.json") # load the tileset from description file
-    
+    floorTileset = Tileset("floortileset.json")
+    bibTileset = Tileset("bibliothek-ext.json")
+
     # create room
     myroom = Room(10,10)
     myroom.setBackgroundColor(0x55aa55aa) #example how to change room background color
-    myroom.setBackgroundTile(mytileset,660) #example how to add a tile as background layer filled with that tile
+    myroom.setBackgroundTile(floorTileset,23) #example how to add a tile as background layer filled with that tile
 
     # create a thing, here a castle :-) and add it to the room 
-    castle = Thing(mytileset,586,Density.notSolid)
-    castle.addToRoom(myroom,1,1)
+    door = Thing(bibTileset,11)
+    door.addToRoom(myroom,1,1)
 
     # second castle 
-    castle.addToRoom(myroom,3,2)
+    door.addToRoom(myroom,3,2)
 
     #castle with a link
-    castleWithLink = ThingWithLink(mytileset,585,Density.solid,"https://cccs.de")
-    castleWithLink.addToRoom(myroom,5,5)
+    windowWithLink = ThingWithLink(bibTileset,12,"https://cccs.de")
+    windowWithLink.addToRoom(myroom,5,5)
 
     # print and export the created room
     print(myroom)
