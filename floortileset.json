@@ -1,5 +1,5 @@
 { "columns":8,
- "image":"https://raw.githubusercontent.com/cccs/rc3-swabian-embassy/master/tiles/floortileset.png",
+ "image":"tiles\/floortileset.png",
  "imageheight":256,
  "imagewidth":256,
  "margin":0,

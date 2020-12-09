@@ -1,5 +1,5 @@
 { "columns":5,
- "image":"https://raw.githubusercontent.com/cccs/rc3-swabian-embassy/master/tiles/bibliothek-ext.png",
+ "image":"tiles\/bibliothek-ext.png",
  "imageheight":160,
  "imagewidth":160,
  "margin":0,
