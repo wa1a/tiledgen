@@ -380,7 +380,7 @@
     "tilesets": [
         {
             "columns": 8,
-            "image": "https://raw.githubusercontent.com/cccs/rc3-swabian-embassy/master/tiles/floortileset.png",
+            "image": "tiles/floortileset.png",
             "imageheight": 256,
             "imagewidth": 256,
             "margin": 0,
@@ -395,7 +395,7 @@
         },
         {
             "columns": 5,
-            "image": "https://raw.githubusercontent.com/cccs/rc3-swabian-embassy/master/tiles/bibliothek-ext.png",
+            "image": "tiles/bibliothek-ext.png",
             "imageheight": 160,
             "imagewidth": 160,
             "margin": 0,
