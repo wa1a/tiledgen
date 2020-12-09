@@ -392,7 +392,7 @@
             "tiles": [
                 {
                     "id": 586,
-                    "properties:": [
+                    "properties": [
                         {
                             "name": "collides",
                             "type": "bool",
@@ -402,7 +402,7 @@
                 },
                 {
                     "id": 585,
-                    "properties:": [
+                    "properties": [
                         {
                             "name": "collides",
                             "type": "bool",

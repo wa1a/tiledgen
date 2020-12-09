@@ -115,7 +115,7 @@ class Room():
                     if tile["id"] == tileID:
                        return #property allready set, do nothing
                 presentTileset["tiles"].append({"id": tileID,
-                                                "properties:": [{
+                                                "properties": [{
                                                     "name": "collides",
                                                     "type":"bool",
                                                     "value":(density == Density.solid)                                                
