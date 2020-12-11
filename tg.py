@@ -138,10 +138,9 @@ class Room():
     
     
     def keepFloorLayerOnTop(self):
-        indexOfFloorLayer = Layer.getLayerListPosByName(self.content.layers,"floorLayer")
-        print(str(indexOfFloorLayer))
-        #for layer in self.content.layers:
-        #    if layer.name == "floorLayer":
+        indexOfFloorLayer = Layer.getLayerListPosByName(self.content.layers,RoomLayers.FLOOR)
+        self.content.layers.append(self.content.layers[indexOfFloorLayer])
+        self.content.layers.pop(indexOfFloorLayer)
 
     def __str__(self):
         #todo: remove empty layers (all data elements 0), otherweise tiled will not load the file (background may not be set)
@@ -166,6 +165,7 @@ class Thing():
     def _addToLayer(self, layer_name,room: Room,x,y):
         posInData = (y*room.content.width)+x
         room._addTileToLayer(layer_name,self.tileset,self.tileID,posInData)
+        room.keepFloorLayerOnTop()
 
     def addToRoom(self, room: Room,x,y):
         room._addTileset(self.tileset)
