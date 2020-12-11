@@ -113,6 +113,10 @@ class Room():
                 tilesetIsPresent = True
         if not tilesetIsPresent:
             tileset.content["firstgid"]= firstgid
+            #recalc ids for properties
+            if "tiles" in tileset.content: 
+                for tile in tileset.content["tiles"]:
+                    tile["id"] = tile["id"]+firstgid    
             self.content.tilesets.append(tileset.content)
 
     def _getFirstGidOfTileset(self, tileset: Tileset):
