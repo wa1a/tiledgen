@@ -86,7 +86,7 @@ class RoomLayers(IntEnum):
 class Room():
     def __init__(self,height, width):
         self.content=RoomData(height,width)
-        self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.BACKGROUND,0,0, self.content.width,self.content.height, "start")) # makes the entry to tha map random. See https://workadventu.re/create-map.html TODO provide an explicit start point
+        self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.BACKGROUND,0,0, self.content.width,self.content.height, "background")) # layer to fill with tiles for background
         self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.THINGS, 0,0,self.content.width,self.content.height, "thingslayer")) # append layer for things
         self.content.layers.append(Layer(LayerTypes.OBJECTGROUP,RoomLayers.OBJECTS, 0,0,self.content.width,self.content.height, "floorLayer")) # append layer for drawing the players
     def _addTileset(self, tileset: Tileset):
@@ -182,6 +182,21 @@ class ThingWithLink(Thing):
         room.content.layers.append(newLayer)
         self._addToLayer(newLayer.id,room,x,y)
 
+#Use this class as Entrypoint for the Map
+class Entrypoint(Thing):
+
+    def __init__(self, tileset_to_use: Tileset, tileID):
+        super().__init__(tileset_to_use, tileID )
+
+    def addToRoom(self,room: Room,x,y):
+        room._addTileset(self.tileset)
+        # we need to create a layer that fits for our thing
+        layerid = room.getNextLayerId()
+        layerid = room.keepFloorLayerOnTop(layerid)
+        newLayer = Layer(LayerTypes.TILELAYER,layerid,0,0,room.content.width,room.content.height,"start")
+        room.content.layers.append(newLayer)
+        self._addToLayer(newLayer.id,room,x,y)
+
 
         
 
@@ -195,12 +210,13 @@ def main():
     myroom = Room(10,10)
     myroom.setBackgroundColor(0x55aa55aa) #example how to change room background color
     myroom.setBackgroundTile(floorTileset,23) #example how to add a tile as background layer filled with that tile
+    Entrypoint(bibTileset,1).addToRoom(myroom,4,1) #add the entrypoint for the room
 
     # create a thing and add it to the room 
     door = Thing(bibTileset,11)
     door.addToRoom(myroom,1,1)
 
-    # second thing 
+    # add the thing a second time
     door.addToRoom(myroom,3,2)
 
     #with a link
