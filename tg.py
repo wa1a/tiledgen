@@ -86,8 +86,8 @@ class RoomData():
         self.tileheight=32
         self.tilesets= []
         self.tilewidth=32
-        self.version = 1
-        self.tiledversion="1.0.3"
+        self.version = 1.4
+        self.type="map"
         self.width=height
 
 class RoomLayers():
@@ -113,10 +113,6 @@ class Room():
                 tilesetIsPresent = True
         if not tilesetIsPresent:
             tileset.content["firstgid"]= firstgid
-            #recalc ids for properties
-            if "tiles" in tileset.content: 
-                for tile in tileset.content["tiles"]:
-                    tile["id"] = tile["id"]+firstgid    
             self.content.tilesets.append(tileset.content)
 
     def _getFirstGidOfTileset(self, tileset: Tileset):
@@ -235,7 +231,7 @@ def main():
     #with a link
     windowWithLink = ThingWithLink(bibTileset,12,"https://cccs.de")
     windowWithLink.addToRoom(myroom,5,5)
-    windowWithLink2 = ThingWithLink(bibTileset,13,"docs\/RC3StyleGuideEssentials.pdf")
+    windowWithLink2 = ThingWithLink(bibTileset,11,"docs\/RC3StyleGuideEssentials.pdf")
     windowWithLink2.addToRoom(myroom,8,8)
  
 
