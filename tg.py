@@ -34,7 +34,19 @@ class LayerTypes(Enum):
     OBJECTGROUP=1
 
 class Layer():
-    def __init__(self,type: LayerTypes, id,x,y, width, height,name):
+    layerid = 0
+    @staticmethod
+    def getNextLayerId():
+        Layer.layerid=Layer.layerid+1
+        return Layer.layerid
+
+    @staticmethod
+    def getLayerListPosByName(layerList,name):
+        for pos,element in enumerate(layerList):
+            if element.name == name:
+                return pos
+
+    def __init__(self,type: LayerTypes,x,y, width, height,name):
         if type == LayerTypes.TILELAYER:
             self.data = [0] * (width * height)
             self.type = "tilelayer"
@@ -43,7 +55,7 @@ class Layer():
             self.objects = []
             self.type = "objectgroup"
         self.height = height 
-        self.id = id
+        self.id = Layer.getNextLayerId() 
         self.name = name
         self.opacity = 1
         self.visible = True
@@ -78,17 +90,18 @@ class RoomData():
         self.tiledversion="1.0.3"
         self.width=height
 
-class RoomLayers(IntEnum):
-    BACKGROUND = 1
-    THINGS = 2
-    OBJECTS = 3
+class RoomLayers():
+    BACKGROUND = "background" 
+    THINGS = "thingslayer"
+    FLOOR = "floorlayer"  
+    START = "start"
 
 class Room():
     def __init__(self,height, width):
         self.content=RoomData(height,width)
-        self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.BACKGROUND,0,0, self.content.width,self.content.height, "background")) # layer to fill with tiles for background
-        self.content.layers.append(Layer(LayerTypes.TILELAYER,RoomLayers.THINGS, 0,0,self.content.width,self.content.height, "thingslayer")) # append layer for things
-        self.content.layers.append(Layer(LayerTypes.OBJECTGROUP,RoomLayers.OBJECTS, 0,0,self.content.width,self.content.height, "floorLayer")) # append layer for drawing the players
+        self.content.layers.append(Layer(LayerTypes.TILELAYER,0,0, self.content.width,self.content.height, RoomLayers.BACKGROUND)) # layer to fill with tiles for background
+        self.content.layers.append(Layer(LayerTypes.TILELAYER,0,0,self.content.width,self.content.height, RoomLayers.THINGS)) # append layer for things
+        self.content.layers.append(Layer(LayerTypes.OBJECTGROUP,0,0,self.content.width,self.content.height, RoomLayers.FLOOR)) # append layer for drawing the players
     def _addTileset(self, tileset: Tileset):
          #check if the used tileset is allready added
         firstgid = 1
@@ -108,33 +121,27 @@ class Room():
                 return aktTileset["firstgid"]
         return 0
 
-    def _addTileToLayer(self, layer_id, tileset: Tileset, tileid,pos):
-            firstGid = self._getFirstGidOfTileset(tileset)
-            for layer in self.content.layers:
-                if layer.id == layer_id:
-                    layer.data[pos] = tileid + firstGid
+    def _addTileToLayer(self, layer_name, tileset: Tileset, tileid,pos):
+        firstGid = self._getFirstGidOfTileset(tileset)
+        layerPosition = Layer.getLayerListPosByName(self.content.layers,layer_name)
+        self.content.layers[layerPosition].data[pos] = tileid + firstGid
 
    
     def setBackgroundColor(self,intvalue):
         self.content.backgroundcolor = "#%x" % intvalue 
 
     def setBackgroundTile(self, tileset: Tileset, tileid):
-
         self._addTileset(tileset) #maybe the tileset used for background is not present in room? Better try to add it 
-        for pos in range(self.content.layers[RoomLayers.BACKGROUND].width * self.content.layers[RoomLayers.BACKGROUND].height):
+        for pos in range(self.content.width * self.content.height):
             self._addTileToLayer(RoomLayers.BACKGROUND,tileset, tileid,pos) 
-    def getNextLayerId(self):
-        nextId = 0
-        for layer in self.content.layers:
-            if layer.id > nextId:
-                nextId = layer.id
-        return nextId+1
-    def keepFloorLayerOnTop(self, highestLayerId):
-        for layer in self.content.layers:
-            if layer.name == "floorLayer":
-                oldLayerid = layer.id
-                layer.id = highestLayerId
-                return oldLayerid
+    
+    
+    
+    def keepFloorLayerOnTop(self):
+        indexOfFloorLayer = Layer.getLayerListPosByName(self.content.layers,"floorLayer")
+        print(str(indexOfFloorLayer))
+        #for layer in self.content.layers:
+        #    if layer.name == "floorLayer":
 
     def __str__(self):
         #todo: remove empty layers (all data elements 0), otherweise tiled will not load the file (background may not be set)
@@ -156,9 +163,9 @@ class Thing():
        self.width = 1
        self.height = 1
     
-    def _addToLayer(self, layerid,room: Room,x,y):
+    def _addToLayer(self, layer_name,room: Room,x,y):
         posInData = (y*room.content.width)+x
-        room._addTileToLayer(layerid,self.tileset,self.tileID,posInData)
+        room._addTileToLayer(layer_name,self.tileset,self.tileID,posInData)
 
     def addToRoom(self, room: Room,x,y):
         room._addTileset(self.tileset)
@@ -166,6 +173,11 @@ class Thing():
         self._addToLayer(RoomLayers.THINGS,room,x,y)
        
 class ThingWithLink(Thing):
+    linkThingCount = 0
+    @staticmethod
+    def getNextLinkThingNumber():
+        ThingWithLink.linkThingCount = ThingWithLink.linkThingCount + 1
+        return ThingWithLink.linkThingCount
 
     def __init__(self, tileset_to_use: Tileset, tileID, link: str ):
         super().__init__(tileset_to_use, tileID )
@@ -174,13 +186,12 @@ class ThingWithLink(Thing):
     def addToRoom(self,room: Room,x,y):
         room._addTileset(self.tileset)
         # we need to create a layer that fits for our thing
-        layerid = room.getNextLayerId()
-        layerid = room.keepFloorLayerOnTop(layerid)
-        newLayer = Layer(LayerTypes.TILELAYER,layerid,0,0,room.content.width,room.content.height,"linkedLayer"+str(layerid))
+        layerName = "ThingWithLink_layer"+str(ThingWithLink.getNextLinkThingNumber())
+        newLayer = Layer(LayerTypes.TILELAYER,0,0,room.content.width,room.content.height,layerName)
         newLayerProperty = LayerProperty("openWebsite", "string", self.link)
         newLayer.properties.append(newLayerProperty)
         room.content.layers.append(newLayer)
-        self._addToLayer(newLayer.id,room,x,y)
+        self._addToLayer(layerName,room,x,y)
 
 #Use this class as Entrypoint for the Map
 class Entrypoint(Thing):
@@ -191,11 +202,9 @@ class Entrypoint(Thing):
     def addToRoom(self,room: Room,x,y):
         room._addTileset(self.tileset)
         # we need to create a layer that fits for our thing
-        layerid = room.getNextLayerId()
-        layerid = room.keepFloorLayerOnTop(layerid)
-        newLayer = Layer(LayerTypes.TILELAYER,layerid,0,0,room.content.width,room.content.height,"start")
+        newLayer = Layer(LayerTypes.TILELAYER,0,0,room.content.width,room.content.height,RoomLayers.START)
         room.content.layers.append(newLayer)
-        self._addToLayer(newLayer.id,room,x,y)
+        self._addToLayer(RoomLayers.START,room,x,y)
 
 
         
