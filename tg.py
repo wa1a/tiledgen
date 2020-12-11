@@ -93,7 +93,7 @@ class RoomData():
 class RoomLayers():
     BACKGROUND = "background" 
     THINGS = "thingslayer"
-    FLOOR = "floorlayer"  
+    FLOOR = "floorLayer"  
     START = "start"
 
 class Room():
